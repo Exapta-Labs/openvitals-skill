@@ -15,7 +15,7 @@ Pair an AI agent with the [**Open Vitals**](https://openvitals.exaptalabs.com) i
 ## Install
 
 ```bash
-git clone https://github.com/hal9000xbot-droid/openvitals-skill.git ~/skills/openvitals-skill
+git clone https://github.com/Exapta-Labs/openvitals-skill.git ~/skills/openvitals-skill
 
 # Tell your agent where the skill lives
 echo 'export SKILL_DIR="$HOME/skills/openvitals-skill"' >> ~/.zshrc
@@ -56,7 +56,7 @@ It's a public relay — you don't need an account, just a pairing handshake from
 
 The `SKILL.md` runbook (especially Step 2.−1 "Detect stale local state") covers the most common breakages — relay secret rotated, token rejected, stale `relay-config.json`. Always run that step before re-pairing manually.
 
-For issues: open a [GitHub Issue](https://github.com/hal9000xbot-droid/openvitals-skill/issues) with the agent's terminal output (mask any tokens visible). Don't paste raw `connect-qr.json` or private key files.
+For issues: open a [GitHub Issue](https://github.com/Exapta-Labs/openvitals-skill/issues) with the agent's terminal output (mask any tokens visible). Don't paste raw `connect-qr.json` or private key files.
 
 ## Status
 

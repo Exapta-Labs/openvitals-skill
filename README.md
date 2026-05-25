@@ -15,7 +15,7 @@ Pair an AI agent with the [**Open Vitals**](https://openvitals.exaptalabs.com) i
 ## Install
 
 ```bash
-git clone https://github.com/Exapta-Labs/openvitals-skill.git ~/skills/openvitals-skill
+git clone https://github.com/Exapta-Labs/openvitals-skill.git ~/projects/openvitals-skill
 
 # Tell your agent where the skill lives
 echo 'export SKILL_DIR="$HOME/skills/openvitals-skill"' >> ~/.zshrc
@@ -28,7 +28,7 @@ mkdir -p "$HOME/.openclaw/workspace/healthsync-server/data"
 chmod 700 "$HOME/.openclaw/workspace/healthsync-server/secrets"
 ```
 
-> The original SKILL.md references the iCloud path of the original author. The skill works from any directory as long as `SKILL_DIR` resolves to the cloned repo.
+> The skill is fully relocatable — clone it wherever you like (`~/projects/`, `~/skills/`, `/opt/`, anywhere) and point `SKILL_DIR` at it. The default `~/projects/openvitals-skill` is just a convention.
 
 ## Use
 

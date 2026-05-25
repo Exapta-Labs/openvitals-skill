@@ -15,25 +15,37 @@ Open Vitals (formerly HealthSync) is an iOS app that exports Apple HealthKit dat
 
 ## 0. Where this skill lives
 
-This skill is shared via iCloud, not pinned to one machine:
+The canonical location is the GitHub clone, by convention at:
 
 ```
-~/Library/Mobile Documents/com~apple~CloudDocs/Business Project/HealthSync/openvitals-skill/
+~/projects/openvitals-skill/
 ```
+
+(Public source: https://github.com/Exapta-Labs/openvitals-skill — clone wherever you prefer and adjust `SKILL_DIR` to match.)
 
 All script paths below resolve to:
 
 ```bash
-SKILL_DIR="$HOME/Library/Mobile Documents/com~apple~CloudDocs/Business Project/HealthSync/openvitals-skill"
+SKILL_DIR="$HOME/projects/openvitals-skill"
 ```
 
-If the agent runs on a machine without iCloud, copy the `openvitals-skill/` folder to the agent's local workspace and adjust `SKILL_DIR` accordingly. Do not edit the scripts in-place if you need a local copy — keep the iCloud copy canonical.
+> **History note (Hal/Robson's host):** through April–May 2026 the skill lived in iCloud at
+> `~/Library/Mobile Documents/com~apple~CloudDocs/Business Project/HealthSync/openvitals-skill/`.
+> That copy is now deprecated — kept around for safety but should not be edited.
+> The LaunchAgent `com.healthsync.server` (the local relay receiver on port 18801)
+> was updated 2026-05-25 to point at `~/projects/openvitals-skill/scripts/server.cjs`.
+
+If the agent runs on a different machine, clone the public repo and adjust `SKILL_DIR` accordingly. The skill is fully relocatable.
 
 ## 1. One-time setup (per agent host)
 
 Run once when bootstrapping the agent on a new machine.
 
 ```bash
+# Clone the skill (or pull updates if already cloned)
+git clone https://github.com/Exapta-Labs/openvitals-skill.git ~/projects/openvitals-skill
+# (or: cd ~/projects/openvitals-skill && git pull)
+
 # Python dependency for E2E crypto
 pip3 install cryptography
 
@@ -42,7 +54,7 @@ brew install qrencode             # macOS
 # sudo apt-get install -y qrencode  # Debian/Ubuntu
 
 # Convenient env (add to ~/.zshrc or shell rc)
-export SKILL_DIR="$HOME/Library/Mobile Documents/com~apple~CloudDocs/Business Project/HealthSync/openvitals-skill"
+export SKILL_DIR="$HOME/projects/openvitals-skill"
 export HEALTHSYNC_RELAY_URL="https://healthsync.hal9000bot.com"
 export HEALTHSYNC_VAULT_PATH="$HOME/Obsidian/Tardis"   # or your vault root
 ```
@@ -117,7 +129,7 @@ unset HEALTHSYNC_RELAY_URL
 grep -rn "HEALTHSYNC_RELAY_URL\|relay\.exaptalabs\.com" \
     ~/.zshrc ~/.bashrc ~/.profile ~/.zshenv ~/.zprofile 2>/dev/null
 
-# Confirm SKILL_DIR points at the iCloud copy
+# Confirm SKILL_DIR points at a valid clone of the skill
 ls "$SKILL_DIR/SKILL.md" >/dev/null && echo "skill OK: $SKILL_DIR" || \
     echo "ERROR: SKILL_DIR not set or wrong path"
 
@@ -414,7 +426,7 @@ Every `/api/register-v5` call mints fresh tokens. If both the agent and the app 
 
 | Path | Owner | Purpose |
 |------|-------|---------|
-| `$SKILL_DIR/` | iCloud (shared) | Skill source — read only from here |
+| `$SKILL_DIR/` | git clone (public repo) | Skill source — read only from here; update via `git pull` |
 | `~/.openclaw/workspace/healthsync-server/` | local | Per-host state, never committed/shared |
 | `…/state.json` | local | Agent ID + public keys + fingerprint |
 | `…/connect-qr.json` | local | Connect payload (public — safe to share content) |

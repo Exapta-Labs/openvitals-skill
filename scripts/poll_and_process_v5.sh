@@ -66,7 +66,10 @@ main() {
   load_cfg
   local body
   body=$(mktemp)
-  trap 'rm -f "$body"' EXIT
+  # Expand $body NOW (double quotes) so `set -u` doesn't blow up when the trap
+  # fires after a path where $body is unset. The single-quote form deferred
+  # expansion and tripped "unbound variable" on early exits.
+  trap "rm -f \"$body\"" EXIT
 
   local http
   http=$(poll_once "$body")

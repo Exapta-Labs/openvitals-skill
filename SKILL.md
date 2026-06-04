@@ -337,7 +337,34 @@ Base URL: `https://healthsync.hal9000bot.com`
 | POST | `/api/register-v5` | none (rate limited) | Agent (Step 2.2) and app (during pairing). Returns `access_token` + `poll_token`. |
 | POST | `/api/sync-v5` | `Bearer <access_token>` | App only. Body is the encrypted envelope. Queues under `recipient_id` (= payload.id). |
 | GET | `/api/poll-v5` | `Bearer <poll_token>` | Agent only. Consumes queue. |
+| POST | `/api/rotate-v5` | `Bearer <access_token>` | Agent (or app). Rotate keys WITH continuity. Body = rotation cert signed by the CURRENT signing key. Returns `new_fingerprint`. |
+| GET | `/api/rotation-v5/<id>[?since=<fp>]` | none (self-verifiable) | Peer catch-up. Returns `{chain:[...]}` of rotation certs. |
 | GET | `/api/admin/poll-token-v5/<id>` | `X-API-Key` | Recover lost `poll_token` |
+
+### Key rotation with continuity (`rotate_v5.py`)
+
+The identity (`id` + keypairs + fingerprint) can be rotated WITHOUT re-pairing or
+changing the `id`. Use this if the signing/encryption private keys may have been
+exposed, or for periodic hygiene.
+
+```bash
+python3 "$SKILL_DIR/scripts/rotate_v5.py"        # prompts for confirmation
+python3 "$SKILL_DIR/scripts/rotate_v5.py" --yes  # non-interactive
+```
+
+What happens: a NEW Ed25519+X25519 keypair is generated, a **rotation cert** is
+signed with the **OLD** signing key (continuity proof) and POSTed to
+`/api/rotate-v5` with `Bearer <access_token>`. On success the relay swaps the
+device's pubkeys+fingerprint (transport tokens unchanged — **do not** re-run
+`register_v5.py`), and appends the cert to an immutable chain. The script then
+overwrites the PEMs and updates `state.json` / `connect-qr.json` /
+`relay-config.json` with the new fingerprint.
+
+The paired iOS app catches up on its own via
+`GET /api/rotation-v5/<id>?since=<old_fingerprint>`, verifying each cert against
+the previously-trusted signing key — so the user does **not** need to re-scan.
+Full protocol + canonical cert serialization: `relay/ROTATION.md` in the
+`openvitals-app` repo.
 
 ### `/api/sync-v5` correctness contract (relay-side, deployed 2026-05-11)
 

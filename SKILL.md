@@ -283,6 +283,35 @@ To inspect the latest decrypted sync without running the full pipeline:
 ls -t "$HOME/.openclaw/workspace/healthsync-server/data"/*.json | head -1 | xargs cat | python3 -m json.tool | less
 ```
 
+### Sync poller daemon (recommended — closes the "stopped syncing" gap)
+
+`server.cjs` only RECEIVES direct LAN pushes; nothing polls the relay queue on a
+schedule. So when the user syncs from outside the LAN (relay path), the syncs sit
+unconsumed and the agent appears to "stop syncing" until someone polls manually.
+`scripts/sync_poller.sh` is the canonical daemon that closes this gap: every ~5min
+it probes `/api/poll-v5`, **self-heals a stale transport token** (silent
+re-register keeping the same identity, per Step 2.−1) if it gets 401/403, then
+polls + decrypts, skipping any undecryptable item gracefully.
+
+Install (launchd, macOS):
+
+```bash
+# 1. point a launchd plist at the skill's canonical script (template in repo)
+sed "s#__HOME__#$HOME#g" "$SKILL_DIR/launchd/com.openvitals.sync-poller.plist" \
+  > ~/Library/LaunchAgents/com.openvitals.sync-poller.plist
+# 2. load it
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.openvitals.sync-poller.plist
+# 3. verify (should list a PID)
+launchctl list | grep sync-poller
+tail -f "$HOME/.openclaw/workspace/healthsync-server/sync_poller.log"
+```
+
+Config knobs (env): `HEALTHSYNC_WS` (workspace dir, defaults to the OpenClaw
+path), `HEALTHSYNC_POLLER_LOG`, `HEALTHSYNC_PYTHON`. The script self-references its
+own `scripts/` dir, so the clone can live anywhere. A healthy idle cycle logs
+nothing (only real polls/errors are recorded). **Don't also run a manual `poll-v5`
+cron** — `poll-v5` is consumable and the two would race for syncs.
+
 ## 4. Pairing payload formats (reference)
 
 **Connect payload (what the app receives via hex/QR):**

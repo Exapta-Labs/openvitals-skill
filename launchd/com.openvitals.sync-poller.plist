@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Open Vitals — relay poller daemon. Runs the agent-side poll+decrypt loop
+  every 5 min so remote syncs are consumed reliably (and tokens self-heal).
+  INSTALL: copy to ~/Library/LaunchAgents/, replace __HOME__ with your $HOME,
+  then: launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.openvitals.sync-poller.plist
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.openvitals.sync-poller</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>__HOME__/projects/openvitals-skill/scripts/sync_poller.sh</string>
+  </array>
+  <key>StartInterval</key><integer>300</integer>
+  <key>RunAtLoad</key><true/>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key><string>__HOME__</string>
+    <key>PATH</key><string>/opt/homebrew/bin:/usr/bin:/bin</string>
+  </dict>
+  <key>StandardOutPath</key><string>__HOME__/.openclaw/workspace/healthsync-server/sync_poller.out.log</string>
+  <key>StandardErrorPath</key><string>__HOME__/.openclaw/workspace/healthsync-server/sync_poller.err.log</string>
+</dict>
+</plist>

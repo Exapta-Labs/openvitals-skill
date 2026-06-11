@@ -1,0 +1,46 @@
+<svg width="900" height="260" viewBox="0 0 900 260" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="O Verbo">
+  <defs>
+    <linearGradient id="gold2" x1="170" y1="40" x2="170" y2="210" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FBE08A"/>
+      <stop offset="0.55" stop-color="#E7B64B"/>
+      <stop offset="1" stop-color="#C98A2A"/>
+    </linearGradient>
+    <linearGradient id="pageL2" x1="80" y1="150" x2="170" y2="230" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F7F3E8"/>
+      <stop offset="1" stop-color="#D9CFB6"/>
+    </linearGradient>
+    <linearGradient id="pageR2" x1="260" y1="150" x2="170" y2="230" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E7DEC8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- icon -->
+  <g transform="translate(0,4)">
+    <!-- rays -->
+    <g opacity="0.6" stroke="url(#gold2)" stroke-width="4" stroke-linecap="round">
+      <line x1="170" y1="60" x2="170" y2="34"/>
+      <line x1="118" y1="80" x2="100" y2="56"/>
+      <line x1="222" y1="80" x2="240" y2="56"/>
+    </g>
+    <!-- V beam -->
+    <path d="M112 70 L170 196 L228 70 L199 70 L170 132 L141 70 Z" fill="url(#gold2)"/>
+    <path d="M170 196 L112 70 L141 70 L170 132 Z" fill="#0D1526" opacity="0.10"/>
+    <!-- book -->
+    <path d="M170 168 C141 144 105 137 78 144 L78 206 C105 199 141 206 170 230 Z" fill="url(#pageL2)"/>
+    <path d="M170 168 C199 144 235 137 262 144 L262 206 C235 199 199 206 170 230 Z" fill="url(#pageR2)"/>
+    <path d="M170 168 L170 230" stroke="#B9A878" stroke-width="4" stroke-linecap="round"/>
+    <g stroke="#C7BC9E" stroke-width="3" stroke-linecap="round" opacity="0.85">
+      <line x1="98" y1="163" x2="146" y2="176"/>
+      <line x1="98" y1="181" x2="146" y2="194"/>
+      <line x1="242" y1="163" x2="194" y2="176"/>
+      <line x1="242" y1="181" x2="194" y2="194"/>
+    </g>
+  </g>
+
+  <!-- wordmark -->
+  <g transform="translate(312,0)">
+    <text x="0" y="128" font-family="Georgia, 'Times New Roman', serif" font-size="92" font-weight="700" letter-spacing="1" fill="#1B2A4A">O <tspan fill="#1B2A4A">Verbo</tspan></text>
+    <text x="4" y="176" font-family="Georgia, 'Times New Roman', serif" font-size="26" letter-spacing="6" fill="#C98A2A">NO PRINCÍPIO ERA O VERBO</text>
+  </g>
+</svg>

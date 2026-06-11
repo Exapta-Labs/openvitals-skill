@@ -1,0 +1,26 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="O Verbo">
+  <!-- Single-color mark. Change `fill`/`stroke` to recolor (currentColor friendly). -->
+  <g fill="#1B2A4A" stroke="#1B2A4A">
+    <!-- rays -->
+    <g stroke-width="6" stroke-linecap="round">
+      <line x1="256" y1="92" x2="256" y2="48"/>
+      <line x1="176" y1="120" x2="150" y2="84"/>
+      <line x1="336" y1="120" x2="362" y2="84"/>
+      <line x1="138" y1="186" x2="98" y2="168"/>
+      <line x1="374" y1="186" x2="414" y2="168"/>
+    </g>
+    <!-- V beam -->
+    <path d="M168 110 L256 300 L344 110 L300 110 L256 205 L212 110 Z" stroke="none"/>
+    <!-- open book (outlined) -->
+    <g fill="none" stroke-width="10" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M256 360 C212 322 158 312 116 322 L116 416 C158 406 212 416 256 452 Z"/>
+      <path d="M256 360 C300 322 354 312 396 322 L396 416 C354 406 300 416 256 452 Z"/>
+    </g>
+    <g stroke-width="4" stroke-linecap="round" opacity="0.6">
+      <line x1="150" y1="352" x2="222" y2="372"/>
+      <line x1="150" y1="378" x2="222" y2="398"/>
+      <line x1="362" y1="352" x2="290" y2="372"/>
+      <line x1="362" y1="378" x2="290" y2="398"/>
+    </g>
+  </g>
+</svg>

@@ -103,7 +103,22 @@ def main():
         json.dump(config, f, indent=2)
 
     print(f"\n✅ Saved to {CONFIG_FILE}")
-    print("Next: user scans QR/hex in app, then run poll_and_process_v5.sh")
+
+    # Self-install the supervised poller so the USER never runs any commands.
+    # Best-effort and idempotent: pairing must still succeed even if supervision
+    # can't be set up (unknown OS, no systemd session bus, etc.).
+    ensure = Path(__file__).resolve().parent / "ensure_daemon.sh"
+    try:
+        r = subprocess.run(
+            ["bash", str(ensure)], capture_output=True, text=True, timeout=60
+        )
+        out = (r.stdout or r.stderr).strip()
+        if out:
+            print(out)
+    except Exception as e:
+        print(f"(poller auto-install skipped: {e})")
+
+    print("Pairing complete. Syncs are polled and decrypted automatically.")
 
 
 if __name__ == "__main__":

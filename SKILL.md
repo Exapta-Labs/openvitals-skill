@@ -288,12 +288,22 @@ ls -t "$HOME/.openclaw/workspace/healthsync-server/data"/*.json | head -1 | xarg
 `server.cjs` only RECEIVES direct LAN pushes; nothing polls the relay queue on a
 schedule. So when the user syncs from outside the LAN (relay path), the syncs sit
 unconsumed and the agent appears to "stop syncing" until someone polls manually.
-`scripts/sync_poller.sh` is the canonical daemon that closes this gap: every ~5min
-it makes ONE `/api/poll-v5` call (capturing body and status together),
-**self-heals a stale transport token** (silent re-register keeping the same
-identity, per Step 2.−1) if it gets 401/403/404, then decrypts the batch,
-skipping any undecryptable item gracefully, and writes a `last_drain.json`
-heartbeat when it actually consumes items.
+**The user never runs install commands.** Pairing (`register_v5.py`) calls
+`scripts/ensure_daemon.sh` automatically, which self-installs the OS supervisor
+(launchd on macOS, systemd-user on Linux) pointed at `scripts/sync_poller.sh`.
+It is idempotent, so every pair/re-pair just re-asserts the desired state, and
+it never fails pairing if a supervisor isn't available. After pairing, syncs are
+polled and decrypted on a schedule with no further action.
+
+`scripts/sync_poller.sh` is the daemon that runs each cycle: every ~5min it makes
+ONE `/api/poll-v5` call (capturing body and status together), **self-heals a
+stale transport token** (silent re-register keeping the same identity, per Step
+2.−1) if it gets 401/403/404, then decrypts the batch, skipping any
+undecryptable item gracefully, and writes a `last_drain.json` heartbeat when it
+actually consumes items.
+
+The manual `launchctl`/`systemctl` recipes below are only for reference or if
+you want to customize the supervisor; normal users need none of them.
 
 > **Why it never "probes" first:** `poll-v5` is destructive (a 200 response
 > consumes up to 10 items and the relay deletes them). An older version made a

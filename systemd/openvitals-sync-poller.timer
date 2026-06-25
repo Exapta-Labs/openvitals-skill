@@ -1,0 +1,18 @@
+# Fires openvitals-sync-poller.service every 5 minutes.
+#
+# Persistent=true makes systemd run a missed cycle immediately after the box
+# (or the user session) comes back, so a reboot or a logout never leaves the
+# queue draining stalled. This is what makes the consumer survive crashes and
+# downtime without anyone logging in to restart it.
+
+[Unit]
+Description=Open Vitals sync poller schedule (every 5 min)
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+Persistent=true
+Unit=openvitals-sync-poller.service
+
+[Install]
+WantedBy=timers.target

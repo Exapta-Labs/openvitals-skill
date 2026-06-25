@@ -289,9 +289,18 @@ ls -t "$HOME/.openclaw/workspace/healthsync-server/data"/*.json | head -1 | xarg
 schedule. So when the user syncs from outside the LAN (relay path), the syncs sit
 unconsumed and the agent appears to "stop syncing" until someone polls manually.
 `scripts/sync_poller.sh` is the canonical daemon that closes this gap: every ~5min
-it probes `/api/poll-v5`, **self-heals a stale transport token** (silent
-re-register keeping the same identity, per Step 2.−1) if it gets 401/403, then
-polls + decrypts, skipping any undecryptable item gracefully.
+it makes ONE `/api/poll-v5` call (capturing body and status together),
+**self-heals a stale transport token** (silent re-register keeping the same
+identity, per Step 2.−1) if it gets 401/403/404, then decrypts the batch,
+skipping any undecryptable item gracefully, and writes a `last_drain.json`
+heartbeat when it actually consumes items.
+
+> **Why it never "probes" first:** `poll-v5` is destructive (a 200 response
+> consumes up to 10 items and the relay deletes them). An older version made a
+> throwaway `-o /dev/null` probe to check the status before the real poll, which
+> silently destroyed up to 10 real syncs every cycle. The poller now makes a
+> single poll and always processes the body it fetched. If you write your own
+> consumer, do the same: never discard a 200 `poll-v5` body.
 
 Install (launchd, macOS):
 
@@ -306,11 +315,41 @@ launchctl list | grep sync-poller
 tail -f "$HOME/.openclaw/workspace/healthsync-server/sync_poller.log"
 ```
 
+Install (systemd, Linux / VPS — survives crashes and reboots):
+
+```bash
+mkdir -p ~/.config/systemd/user
+# edit the __SKILL_DIR__ and __WORKSPACE_DIR__ placeholders in the .service first
+cp systemd/openvitals-sync-poller.service ~/.config/systemd/user/
+cp systemd/openvitals-sync-poller.timer   ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now openvitals-sync-poller.timer
+loginctl enable-linger "$USER"   # keep it running after logout
+```
+
 Config knobs (env): `HEALTHSYNC_WS` (workspace dir, defaults to the OpenClaw
 path), `HEALTHSYNC_POLLER_LOG`, `HEALTHSYNC_PYTHON`. The script self-references its
 own `scripts/` dir, so the clone can live anywhere. A healthy idle cycle logs
 nothing (only real polls/errors are recorded). **Don't also run a manual `poll-v5`
 cron** — `poll-v5` is consumable and the two would race for syncs.
+
+### Diagnose a consumer from the outside (no machine access)
+
+`GET /api/admin/health-v5/<recipient_id>` (admin, `X-API-Key`, read-only) reports
+a recipient's sync health without touching the user's machine. Use it to tell
+whether the consumer stopped, is choking, or is healthy:
+
+```bash
+curl -H "X-API-Key: $PAIR_API_KEY" \
+  "$RELAY/api/admin/health-v5/<recipient_id>"
+# → { verdict, queue_depth, oldest_item_age_min, last_poll_age_min, last_sync_age_min, ... }
+```
+
+`verdict` is one of: `ok`, `drained` (queue empty), `consumer_not_polling_2h+`
+(agent down), `polling_but_not_draining` (agent reaches the relay but isn't
+consuming — a poller bug or a wedged item), `catching_up`,
+`recipient_not_registered`. It reads existing rate-limit windows and the queue,
+so it writes nothing to the relay KV.
 
 ## 4. Pairing payload formats (reference)
 
